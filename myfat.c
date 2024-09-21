@@ -82,12 +82,14 @@ void initialise_header(header* hdr, uint64_t size) {
 #define BUG_IF(cond, ...) if (cond) { printf("Implementation bug detected. Aborting."); exit(1); }
 #endif
 
-int main() {
+int main(int argc, const char** argv) {
 	BUG_IF(sizeof(header) != 512, "Filesystem header is %d bytes instead 512 bytes", sizeof(header));
 	BUG_IF(sizeof(dirent) != 128, "Directory info structure is %d bytes instead of 128 bytes", sizeof(dirent));
+	if (argc < 2) 
+		return 0;
 	header hdr;
 	initialise_header(&hdr, (1 << 20) * (1 << 9));
-	FILE* file = fopen("fs", "wb");
+	FILE* file = fopen(argv[1], "wb");
 	fwrite(&hdr, 512, 1, file);
 	fatent t = 0;
 	for (uint32_t i = 0; i < hdr.total; i++)
