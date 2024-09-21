@@ -33,6 +33,8 @@ typedef struct __attribute__((packed)) __header {
 	uint16_t sign;      // Marks bootable region equal to 0xAA55
 } header;
 
+typedef uint32_t fatent; //  A entry in the FAT
+
 typedef struct __attribute__((packed)) __dirent {
 	uint8_t  name[64];        // File name 64 characters in ASCII or 32 characters of UNICODE 
 	uint64_t atime;           // Access time from epoch
@@ -67,7 +69,7 @@ void initialise_header(header* hdr, uint64_t size) {
 	hdr->nfats = 1; // For now
 	hdr->media = 0xFF; // Fixed constant
 	hdr->total = (uint32_t) (size / 512);
-	hdr->sig = 0x29;
+	hdr->spf = (hdr->total * sizeof(fatent)) / 512 + 1;
 	hdr->sign = 0xAA55;
 }
 
@@ -87,5 +89,13 @@ int main() {
 	initialise_header(&hdr, (1 << 20) * (1 << 9));
 	FILE* file = fopen("fs", "wb");
 	fwrite(&hdr, 512, 1, file);
+	fatent t = 0;
+	for (uint32_t i = 0; i < hdr.total; i++)
+		fwrite(&t, 4, 1, file);
+	for (uint32_t i = 0; i < hdr.total; i++) {
+		for (uint16_t j = 0; j < 512; j += 4) {
+			fwrite(&t,  4, 1, file);
+		}
+	}
 	return 0;
 }
