@@ -34,14 +34,16 @@ typedef struct __attribute__((packed)) __header {
 } header;
 
 typedef struct __attribute__((packed)) __dirent {
-	uint8_t  name[64]; 
-	uint64_t atime;
-	uint64_t mtime;
-	uint64_t ctime;
-	uint64_t attributes;
-	uint64_t size;
-	uint32_t cluster;
-	uint8_t  inline_data[20];
+	uint8_t  name[64];        // File name 64 characters in ASCII or 32 characters of UNICODE 
+	uint64_t atime;           // Access time from epoch
+	uint64_t mtime;           // Modification time from epoch
+	uint64_t ctime;           // Creation time from epoch
+	uint64_t attributes;      // Attributes associated with file or directory 
+	uint64_t size;            // Either size of  file in bytes or number of entries in directory
+	uint32_t cluster;         // First cluster allocated to file/directory
+	uint64_t hash;            // xxHash64 for name
+	uint64_t hash_store;      // xxHash64 for stored data to check for inconsistencies
+	uint32_t crc32;           // CRC for the dirent structure to detect inconsistencies
 } dirent;
 
 #include <memory.h>
